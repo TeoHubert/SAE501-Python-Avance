@@ -21,6 +21,7 @@ def verif_ip(ip :str):
 
 def ihm() :
     while True :
+        print("=================================menu=================================")
         
         cible_1_ip = input("Entrez l'adresse IP de la cible 1 : ")
         cible_2_ip = input("Entrez l'adresse IP de la cible 2 : ")
@@ -28,7 +29,7 @@ def ihm() :
 
         if verif_ip(cible_1_ip) and verif_ip(cible_2_ip):
             break
-
+    print("======================================================================")
     mitm = MainInTheMiddle(cible_1_ip, cible_2_ip, interface)
     mitm.start_mitm()
     return mitm
