@@ -37,13 +37,6 @@ class ArpSpoofing:
         return f"ArpSpoofing(ip_src={self.ip_src}, mac_src={self.mac_src}, ip_dst={self.ip_dst}, mac_dst={self.mac_dst}, interface={self.interface})"
 
 
-def _make_example_instances():
-    # Remplacez ces adresses et MACs par celles adaptées à votre environnement
-    s1 = ArpSpoofing("192.168.56.5", "192.168.56.4", "d6:61:9d:90:a2:64", "08:00:27:07:78:aa", "bridge100")
-    s2 = ArpSpoofing("192.168.56.4", "192.168.56.5", "d6:61:9d:90:a2:64", "08:00:27:74:d6:4d", "bridge100")
-    return s1, s2
-
-
 async def main():
     s1 = ArpSpoofing("192.168.56.5", "192.168.56.4", "d6:61:9d:90:a2:64", "08:00:27:07:78:aa", "bridge100")
     s2 = ArpSpoofing("192.168.56.4", "192.168.56.5", "d6:61:9d:90:a2:64", "08:00:27:74:d6:4d", "bridge100")
