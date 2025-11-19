@@ -32,8 +32,24 @@ class Sniffer:
         self.packet_tranfert(packet)
 
     async def start_sniffing(self):
-        capture = scapy.sniff(iface=self.interface, filter=self.filtre, prn=self.packet_callback, store=True)
-        scapy.wrpcap("sessions_sniffer.pcap", capture)
+        # capture = scapy.sniff(iface=self.interface, filter=self.filtre, prn=self.packet_callback, store=True)
+        # scapy.wrpcap("sessions_sniffer.pcap", capture)
+        # Utiliser AsyncSniffer pour ne pas bloquer la boucle asyncio.
+        # On démarre le sniffer en arrière-plan, puis on attend indéfiniment
+        # jusqu'à annulation. À l'annulation, on arrête le sniffer et on écrit
+        # le pcap.
+        sniffer = scapy.AsyncSniffer(iface=self.interface, filter=self.filtre, prn=self.packet_callback, store=True)
+        sniffer.start()
+        try:
+            # attendre indéfiniment jusqu'à cancellation
+            await asyncio.Event().wait()
+        except asyncio.CancelledError:
+            # Lorsqu'on annule la tâche, stopper le sniffer et sauvegarder
+            sniffer.stop()
+            capture = sniffer.results
+            scapy.wrpcap("sessions_sniffer.pcap", capture)
+            # Repropager l'exception d'annulation pour que le caller sache
+            raise
 
 
 async def main():
