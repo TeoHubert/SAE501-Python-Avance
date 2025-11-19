@@ -1,5 +1,6 @@
 import scapy.all as scapy
 import asyncio
+import remove_checksum
 
 class Sniffer:
     def __init__(self, interface, mac_1, mac_2):
@@ -23,8 +24,8 @@ class Sniffer:
             ether.src = self.self_mac # On met notre MAC comme source pour conserver la cohérence de la table ARP
 
             # TODO: gérer les paquets IP avec recalcul du checksum
-
-            scapy.sendp(packet, iface=self.interface, verbose=False)
+            paquet = remove_checksum.remove_checksum(packet)
+            scapy.sendp(paquet, iface=self.interface, verbose=False)
 
     def packet_callback(self, packet):
         print(packet.summary())
