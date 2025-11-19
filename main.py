@@ -51,7 +51,7 @@ async def ihm() :
                 iface = json_data.get("interface")
                 if c1 and c2 and iface and verif_ip(c1) and verif_ip(c2):
                     cible_1_ip, cible_2_ip, interface = c1, c2, iface
-                    print(f"Configuration chargée depuis {config_path}")
+                    print(f"Configuration chargée depuis {json_path}")
                     break
                 else:
                     print("Fichier de configuration invalide ou incomplet — saisie manuelle requise.")
@@ -63,7 +63,7 @@ async def ihm() :
             #     "interface": "eth0"
             # }
                 
-                print(f"Impossible de charger {config_path} : {e}")
+                print(f"Impossible de charger {json_path} : {e}")
 
         print("=================================menu=================================")
         
