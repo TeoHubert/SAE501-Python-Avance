@@ -5,6 +5,7 @@ from scapy.all import get_if_hwaddr, get_if_addr, show_interfaces
 import asyncio
 import os
 import json
+import tkinter as tk
 
 class MainInTheMiddle:
     def __init__(self, cible_1_ip, cible_2_ip, interface):
@@ -77,6 +78,8 @@ async def ihm() :
         if verif_ip(cible_1_ip) and verif_ip(cible_2_ip):
             break
     print("======================================================================")
+
+
     mitm = MainInTheMiddle(cible_1_ip, cible_2_ip, interface)
     await mitm.start_mitm()
     return mitm
