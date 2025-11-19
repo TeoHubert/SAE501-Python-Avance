@@ -63,7 +63,6 @@ async def ihm() :
             #     "interface": "eth0"
             # }
                 
-                print(f"Impossible de charger {json_path} : {e}")
 
         print("=================================menu=================================")
         
