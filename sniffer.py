@@ -1,5 +1,6 @@
 import scapy.all as scapy
 import asyncio
+import threading
 import remove_checksum
 
 class Sniffer:
@@ -13,6 +14,7 @@ class Sniffer:
         #self.filtre = f"((ether src {self.mac_1} or ether src {self.mac_2}) or (ether dst {self.self_mac} and not dst host {self.self_ip})) and not arp"
         # On veut un paquet qui provient soit d'un client soit de l'autre, mais pas un paquet qui nous est destiné au niveau IP
         self.filtre = f"(ether src {self.mac_1} or ether src {self.mac_2}) and not dst host {self.self_ip} and not arp"
+        self.capture = []
 
     def packet_tranfert(self, packet):
         if packet.haslayer(scapy.Ether):
@@ -29,26 +31,23 @@ class Sniffer:
 
     def packet_callback(self, packet):
         print(packet.summary())
+        self.capture.append(packet)
         self.packet_tranfert(packet)
+
+    def sniffer_thread(self):
+        scapy.sniff(iface=self.interface, filter=self.filtre, prn=self.packet_callback, store=False)
 
     async def start_sniffing(self):
         # capture = scapy.sniff(iface=self.interface, filter=self.filtre, prn=self.packet_callback, store=True)
         # scapy.wrpcap("sessions_sniffer.pcap", capture)
-        # Utiliser AsyncSniffer pour ne pas bloquer la boucle asyncio.
-        # On démarre le sniffer en arrière-plan, puis on attend indéfiniment
-        # jusqu'à annulation. À l'annulation, on arrête le sniffer et on écrit
-        # le pcap.
-        sniffer = scapy.AsyncSniffer(iface=self.interface, filter=self.filtre, prn=self.packet_callback, store=True)
-        sniffer.start()
+
+        self.thread = threading.Thread(target=self.sniffer_thread, daemon=True)
+        self.thread.start()
+
         try:
-            # attendre indéfiniment jusqu'à cancellation
             await asyncio.Event().wait()
         except asyncio.CancelledError:
-            # Lorsqu'on annule la tâche, stopper le sniffer et sauvegarder
-            sniffer.stop()
-            capture = sniffer.results
-            scapy.wrpcap("sessions_sniffer.pcap", capture)
-            # Repropager l'exception d'annulation pour que le caller sache
+            scapy.wrpcap("sessions_sniffer.pcap", self.capture)
             raise
 
 
