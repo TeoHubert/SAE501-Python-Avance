@@ -32,7 +32,7 @@ class Sniffer:
         self.packet_tranfert(packet)
 
     async def start_sniffing(self):
-        capture = scapy.sniff(iface=self.interface, filter=self.filtre, prn=self.packet_callback, store=False)
+        capture = scapy.sniff(iface=self.interface, filter=self.filtre, prn=self.packet_callback, store=True)
         scapy.wrpcap("sessions_sniffer.pcap", capture)
 
 
