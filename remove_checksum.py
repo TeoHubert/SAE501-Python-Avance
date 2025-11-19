@@ -1,7 +1,7 @@
 from scapy.all import IP, TCP
 
 def remove_checksum(packet):
-    print(f"check sum du packet : {IP(bytes(packet)).chksum}")
+    # print(f"check sum du packet : {IP(bytes(packet)).chksum}")
     del packet.chksum 
     return packet
 
