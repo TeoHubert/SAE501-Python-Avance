@@ -1,7 +1,7 @@
 import get_mac_from_ip
 import arp_spoofing
 import sniffer
-from scapy.all import get_if_hwaddr, get_if_addr
+from scapy.all import get_if_hwaddr, get_if_addr, show_interfaces
 import asyncio
 import os
 import json
@@ -65,7 +65,11 @@ async def ihm() :
                 
 
         print("=================================menu=================================")
-        
+
+        voir_interface = input("Voulez-vous voir les interfaces réseau disponibles ? (o/n) : ")
+        if voir_interface.lower() == 'o':
+            print("Interfaces réseau disponibles :")
+            print(show_interfaces())
         cible_1_ip = input("Entrez l'adresse IP de la cible 1 : ")
         cible_2_ip = input("Entrez l'adresse IP de la cible 2 : ")
         interface = input("Entrez le nom de l'interface réseau à utiliser : ")
