@@ -19,6 +19,9 @@ jobs:
     # Le type de runner hébergé par GitHub qui exécutera le job
     runs-on: ubuntu-latest
 
+    # 2. Votre image Docker personnalisée de Docker Hub
+    container: breizhteo/sae501-python-avance:lasted
+
     # Étapes (Steps) qui définissent la séquence des tâches
     steps:
       # 1. Action standard pour cloner le code de votre dépôt
