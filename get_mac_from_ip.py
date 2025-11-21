@@ -11,7 +11,7 @@ class Cible:
         hwsrc = get_if_hwaddr(interface)
         ipsrc = get_if_addr(interface)
         p = Ether(dst="ff:ff:ff:ff:ff:ff", src=hwsrc) / ARP(op=1, hwsrc=hwsrc, psrc=ipsrc, pdst=ip)
-        reponse = srp1(p, iface=interface, timeout=2, verbose=False)
+        reponse = srp1(p, iface=interface, timeout=5, verbose=False)
         if reponse:
             return reponse.hwsrc
         else:
