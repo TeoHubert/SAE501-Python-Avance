@@ -1,0 +1,34 @@
+# Nom de votre workflow affiché dans l'onglet Actions
+name: Simple Dev-Mitm Test
+
+# Contrôle quand le workflow sera exécuté
+on:
+  # Déclenche le workflow sur les événements 'push' et 'pull_request'
+  # uniquement pour la branche "dev-mitm"
+  push:
+    branches: [ "dev-mitm" ]
+  pull_request:
+    branches: [ "dev-mitm" ]
+
+  # Permet de lancer ce workflow manuellement depuis l'onglet Actions
+  workflow_dispatch:
+
+# Un workflow est composé d'un ou plusieurs jobs
+jobs:
+  simple_job:
+    # Le type de runner hébergé par GitHub qui exécutera le job
+    runs-on: ubuntu-latest
+
+    # 2. Votre image Docker personnalisée de Docker Hub
+    container: breizhteo/sae501-python-avance:lasted
+
+    # Étapes (Steps) qui définissent la séquence des tâches
+    steps:
+      # 1. Action standard pour cloner le code de votre dépôt
+      # C'est souvent nécessaire même pour des commandes simples
+      - uses: actions/checkout@v4
+        name: Checkout Repository Code
+
+      # 2. Exécute la commande "echo Bonjour"
+      - name: Executer la commande Bonjour
+        run: echo "Bonjour"
