@@ -4,7 +4,7 @@ import time
 
 class NetworkFlowMonitor:
     def __init__(self):
-        pass
+        self.list_packet = []
 
     def list_interface(self):
         noms_interfaces = list(scapy.interfaces.get_if_list()) #scapy.interfaces.show_interfaces() BCP mieux
@@ -20,8 +20,7 @@ class NetworkFlowMonitor:
         self.start_sniffing(int_wifi)
 
     def packet_callback(self, packet):
-        list_packet = []
-        list_packet.append(packet)
+        self.list_packet.append(packet)
 
     def start_sniffing(self,interface):
         print("Appuyer Ctrl+C pour arrêter")
