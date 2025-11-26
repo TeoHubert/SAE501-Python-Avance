@@ -9,6 +9,7 @@ import tkinter as tk
 
 class MainInTheMiddle:
     def __init__(self, cible_1_ip, cible_2_ip, interface):
+        """Initialise l'attaque MITM en configurant les cibles (1 & 2) et l'interface réseau."""
         self.cible_1 = get_mac_from_ip.Cible(cible_1_ip, interface)
         self.cible_2 = get_mac_from_ip.Cible(cible_2_ip, interface)
         self.interface = interface
@@ -16,6 +17,7 @@ class MainInTheMiddle:
         self.self_ip = get_if_addr(interface)
 
     async def start_mitm(self):
+        """Démarre l'attaque MITM en lançant les spoofers ARP et le sniffer de paquets de manière asynchrone."""
         spoof_client_1 = arp_spoofing.ArpSpoofing(self.cible_2.ip, self.cible_1.ip, self.self_mac, self.cible_1.mac, self.interface)
         spoof_client_2 = arp_spoofing.ArpSpoofing(self.cible_1.ip, self.cible_2.ip, self.self_mac, self.cible_2.mac, self.interface)
             
@@ -31,6 +33,7 @@ class MainInTheMiddle:
             t3.cancel()
 
 def verif_ip(ip :str):
+    """Vérifie si une chaîne de caractères est une adresse IP qui semble valide."""
     octets = ip.split(".")
     if len(octets) != 4:
         return False
@@ -42,6 +45,7 @@ def verif_ip(ip :str):
     return True
 
 async def ihm() :
+    """Interface pour configurer et démarrer l'attaque MITM."""
     while True :
         json_path = "config.json"
         if os.path.exists(json_path):
