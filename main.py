@@ -18,7 +18,7 @@ class NetworkFlowMonitor:
         Get-NetAdapter | Select-Object Name, InterfaceDescription, InterfaceGuid """
         print("Interface réseau disponible :")
         for interfaces in noms_interfaces:
-            print(f"{num_interface}: {interfaces.split("_")[1]}")
+            print(f"{num_interface}: {interfaces.split('_')[1] if '_' in interfaces else interfaces}")
             num_interface += 1
         print(f"Démarrage de la surveillance pour l'interface : {self.interface}")
 
