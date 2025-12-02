@@ -61,7 +61,7 @@ async def ihm() :
                 else:
                     print("Fichier de configuration invalide ou incomplet — saisie manuelle requise.")
 
-            #exemple de fichier json valide pour les nul en json :
+            #exemple de fichier json valide :
             # {
             #     "cible_1_ip": "192.168.1.10",
             #     "cible_2_ip": "192.168.1.20",
