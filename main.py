@@ -11,16 +11,27 @@ class NetworkFlowMonitor:
         self.thread = None
 
     def list_interface(self):
+        dict = {}
         noms_interfaces = list(scapy.interfaces.get_if_list()) #scapy.interfaces.show_interfaces() BCP mieux
         num_interface = 0
         self.interface = noms_interfaces[4]
         """Pour connaitre le lien entre le nom de l'interface et l'UID sur Windows :
         Get-NetAdapter | Select-Object Name, InterfaceDescription, InterfaceGuid """
-        print("Interface réseau disponible :")
+        print("Interfaces réseaux disponibles :")
         for interfaces in noms_interfaces:
             print(f"{num_interface}: {interfaces.split('_')[1] if '_' in interfaces else interfaces}")
+            dict[num_interface] = [interfaces.split('_')[1] if '_' in interfaces else interfaces]
             num_interface += 1
-        print(f"Démarrage de la surveillance pour l'interface : {self.interface}")
+        num_interface = 0
+        interface_voulu = input(f"Quelle interface voulez vous surveiller ? (Par défaut : {self.interface}) : ")
+        for interfaces in noms_interfaces:
+            interface_voulu = int(interface_voulu)
+            if int(interface_voulu) == num_interface:
+                self.interface = dict[num_interface][0]
+                print(self.interface)
+            else:
+                pass
+            num_interface += 1
 
     def packet_callback(self, packet):
         #print(packet.summary())
@@ -38,30 +49,26 @@ class NetworkFlowMonitor:
     def start_sniffing(self):
         self.thread = threading.Thread(target=self.sniffer_thread, daemon=True)
         self.thread.start()
+        time_affiche = input("Quelle intervalle de temps voulez-vous (en s) ? ")
+        print(f'Affichage des statistics toutes les {time_affiche} secondes')
         while True:
-            time.sleep(3)
+            time.sleep(int(time_affiche))
             tableau = self.stats()
             print("Nombre de paquets : " + str(len(self.list_packet)))
             for protocole in ["TCP", "UDP","ICMP", "Autre"]:
                 data = tableau[protocole]
                 packets = data['packets']
                 octet_count = data['octet']
-                
                 # Format d'affichage identique à l'image
-                print(f"  {protocole:<5}: {packets:>5} paquets ({octet_count:>6} octet)")
+                print(f"  {protocole}: {packets} paquets ({octet_count} octet)")
 
     def stats(self):
-        tableau = {
-            "TCP": {"packets": 0, "octet": 0},
-            "UDP": {"packets": 0, "octet": 0},
-            "ICMP": {"packets": 0, "octet": 0},
-            "Autre": {"packets": 0, "octet": 0}
-        }
-
+        tableau = {"TCP": {"packets": 0, "octet": 0},
+                "UDP": {"packets": 0, "octet": 0},
+                "ICMP": {"packets": 0, "octet": 0},
+                "Autre": {"packets": 0, "octet": 0}}
         for packet in self.list_packet:
-
             packet_size = len(packet)
-
             if scapy.all.TCP in packet:
                 key = "TCP"
             elif scapy.all.UDP in packet:
@@ -70,11 +77,8 @@ class NetworkFlowMonitor:
                 key = "ICMP"
             else:
                 key = "Autre"
-            
-            # Mise à jour des compteurs
             tableau[key]["packets"] += 1
             tableau[key]["octet"] += packet_size
-            
         return tableau
 
 
