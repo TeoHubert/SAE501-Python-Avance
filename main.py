@@ -16,7 +16,7 @@ class NetworkFlowMonitor:
         num_interface = 0
         self.interface = noms_interfaces[4]
         """Pour connaitre le lien entre le nom de l'interface et l'UID sur Windows :
-        Get-NetAdapter | Select-Object Name, InterfaceDescription, InterfaceGuid """
+        Get-NetAdapter | Select-Object Name, InterfaceGuid """
         print("Interfaces réseaux disponibles :")
         for interfaces in noms_interfaces:
             print(f"{num_interface}: {interfaces.split('_')[1] if '_' in interfaces else interfaces}")
@@ -25,13 +25,14 @@ class NetworkFlowMonitor:
         num_interface = 0
         interface_voulu = input(f"Quelle interface voulez vous surveiller ? (Par défaut : {self.interface}) : ")
         for interfaces in noms_interfaces:
-            interface_voulu = int(interface_voulu)
-            if int(interface_voulu) == num_interface:
-                self.interface = dict[num_interface][0]
-                print(self.interface)
-            else:
+            try:
+                interface_voulu = int(interface_voulu)
+                if int(interface_voulu) == num_interface:
+                    self.interface = "\Device\\NPF_" + str(dict[num_interface][0])
+            except ValueError:
                 pass
             num_interface += 1
+        print(f"Interface sélectionnée : {self.interface} ")
 
     def packet_callback(self, packet):
         #print(packet.summary())
@@ -49,8 +50,12 @@ class NetworkFlowMonitor:
     def start_sniffing(self):
         self.thread = threading.Thread(target=self.sniffer_thread, daemon=True)
         self.thread.start()
-        time_affiche = input("Quelle intervalle de temps voulez-vous (en s) ? ")
-        print(f'Affichage des statistics toutes les {time_affiche} secondes')
+        try:
+            time_affiche = 5
+            time_affiche = input("Quelle intervalle de temps voulez-vous (en s) ? ")
+            print(f'Affichage des statistics toutes les {time_affiche} secondes')
+        except ValueError:
+            print("Valeur non autorisé")
         while True:
             time.sleep(int(time_affiche))
             tableau = self.stats()
@@ -60,7 +65,7 @@ class NetworkFlowMonitor:
                 packets = data['packets']
                 octet_count = data['octet']
                 # Format d'affichage identique à l'image
-                print(f"  {protocole}: {packets} paquets ({octet_count} octet)")
+                print(f"{protocole}: {packets} paquets ({octet_count} octet)")
 
     def stats(self):
         tableau = {"TCP": {"packets": 0, "octet": 0},
