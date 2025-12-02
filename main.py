@@ -1,7 +1,6 @@
 import scapy 
 from scapy.all import *
 import time
-import asyncio
 import threading
 
 class NetworkFlowMonitor:
@@ -22,34 +21,35 @@ class NetworkFlowMonitor:
             print(f"{num_interface}: {interfaces.split('_')[1] if '_' in interfaces else interfaces}")
             liste_interface.append(interfaces)
             num_interface += 1
-        num_interface = 0
         interface_voulu = input(f"Quelle interface voulez vous surveiller ? (Par défaut : {self.interface}) : ")
         if interface_voulu != "":
-            self.interface = liste_interface[int(interface_voulu)]
-        print(f"Interface sélectionnée : {self.interface} ")
+            try:
+                self.interface = liste_interface[int(interface_voulu)]
+                print(f"Interface sélectionnée : {self.interface} ")
+            except ValueError:
+                print("Tu as écrit n'importe quoi")
+                print(f"Interface par défaut : {self.interface} ")
+        
 
     def packet_callback(self, packet):
-        #print(packet.summary())
         self.list_packet.append(packet)
 
     def sniffer_thread(self):
         try:
             sniff(iface=self.interface, prn=self.packet_callback,store=False)
         except Exception as e:
-            # Cette ligne va capturer et imprimer le message d'erreur exact.
             print(f"\n {type(e).__name__} - {e}", file=sys.stderr)
-            # Quitter le thread
             return
 
     def start_sniffing(self):
         self.thread = threading.Thread(target=self.sniffer_thread, daemon=True)
         self.thread.start()
         try:
-            time_affiche = 5
-            time_affiche = input("Quelle intervalle de temps voulez-vous (en s) ? ")
-            print(f'Affichage des statistics toutes les {time_affiche} secondes')
+            time_affiche = int(input("Quelle intervalle de temps voulez-vous (en s) ? "))
         except ValueError:
             print("Valeur non autorisé")
+            time_affiche = 5
+        print(f'Affichage des statistics toutes les {time_affiche} secondes')
         while True:
             time.sleep(int(time_affiche))
             tableau = self.stats()
@@ -57,9 +57,9 @@ class NetworkFlowMonitor:
             for protocole in ["TCP", "UDP","ICMP", "Autre"]:
                 data = tableau[protocole]
                 packets = data['packets']
-                octet_count = data['octet']
-                # Format d'affichage identique à l'image
-                print(f"{protocole}: {packets} paquets ({octet_count} octet)")
+                octet = data['octet']
+                print(f"{protocole}: {packets} paquets ({octet} octet)")
+            print("\n=======================\n")
 
     def stats(self):
         tableau = {"TCP": {"packets": 0, "octet": 0},
