@@ -11,7 +11,7 @@ class NetworkFlowMonitor:
         self.thread = None
 
     def list_interface(self):
-        dict = {}
+        liste_interface = []
         noms_interfaces = list(scapy.interfaces.get_if_list()) #scapy.interfaces.show_interfaces() BCP mieux
         num_interface = 0
         self.interface = noms_interfaces[4]
@@ -20,18 +20,12 @@ class NetworkFlowMonitor:
         print("Interfaces réseaux disponibles :")
         for interfaces in noms_interfaces:
             print(f"{num_interface}: {interfaces.split('_')[1] if '_' in interfaces else interfaces}")
-            dict[num_interface] = [interfaces.split('_')[1] if '_' in interfaces else interfaces]
+            liste_interface.append(interfaces)
             num_interface += 1
         num_interface = 0
         interface_voulu = input(f"Quelle interface voulez vous surveiller ? (Par défaut : {self.interface}) : ")
-        for interfaces in noms_interfaces:
-            try:
-                interface_voulu = int(interface_voulu)
-                if int(interface_voulu) == num_interface:
-                    self.interface = "\Device\\NPF_" + str(dict[num_interface][0])
-            except ValueError:
-                pass
-            num_interface += 1
+        if interface_voulu != "":
+            self.interface = liste_interface[int(interface_voulu)]
         print(f"Interface sélectionnée : {self.interface} ")
 
     def packet_callback(self, packet):
