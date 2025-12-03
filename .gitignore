@@ -3,3 +3,5 @@ venv/
 .venv/
 *.json
 *.pca
+*.pcap
+*.DS_Store
